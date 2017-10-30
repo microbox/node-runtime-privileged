@@ -25,7 +25,7 @@ fi
 if [ -e "bin/standalone" ]; then
   exec bin/standalone
 else
-  echo "> Failed to start app...exit"
+  echo "> File bin/standalone not found. Failed to start app...exit"
   exit 1
 fi
 
