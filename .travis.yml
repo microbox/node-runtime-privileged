@@ -1,8 +1,5 @@
 sudo: required
 
-services:
-  - docker
-
 notifications:
   email:
     on_success: never
@@ -10,7 +7,6 @@ notifications:
 
 before_install:
   # install the latest docker and docker-compose versions
-  - sudo apt-get remove docker docker-engine
   - sudo curl -sSL https://get.docker.com/ | sh
   - sudo rm /usr/local/bin/docker-compose
   # the latest docker-compose version
