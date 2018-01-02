@@ -8,7 +8,7 @@ RUN apk add --no-cache --update unzip tzdata libc6-compat && \
     rm -rf /usr/share/man /tmp/* /var/cache/apk/* /root/.npm /root/.node-gyp /root/.gnupg
 
 RUN adduser -u 1000 -g node -h /home/node -s /bin/sh -D node
-USER node
+
 ENV HOME=/home/node
 WORKDIR /home/node
 
