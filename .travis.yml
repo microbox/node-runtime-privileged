@@ -27,7 +27,7 @@ script:
   - docker pull $IMAGE || echo 'image not found'
   - |
     if [[ "$(docker images -q $IMAGE 2> /dev/null)" == "" ]]; then
-      docker build -t $IMAGE -t $TRAVIS_REPO_SLUG:latest --build-arg NODE_VERSION=$NODE_VERSION .
+      docker build -t $IMAGE -t $TRAVIS_REPO_SLUG:10 --build-arg NODE_VERSION=$NODE_VERSION .
       docker images
       echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
       docker push $TRAVIS_REPO_SLUG
