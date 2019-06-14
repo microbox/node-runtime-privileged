@@ -11,6 +11,8 @@ notifications:
 install:
   - export NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest-v10.x/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
   - echo $NODE_VERSION
+  - export IMAGE=$TRAVIS_REPO_SLUG:$NODE_VERSION
+  - echo $IMAGE
 #  - sudo curl -sSL https://get.docker.com/ | sh
   - docker version
   - docker info
@@ -23,7 +25,6 @@ install:
 #  - docker-compose version
 
 script:
-  - export IMAGE=$TRAVIS_REPO_SLUG:$NODE_VERSION
   - docker pull $IMAGE || echo 'image not found'
   - |
     if [[ "$(docker images -q $IMAGE 2> /dev/null)" == "" ]]; then
