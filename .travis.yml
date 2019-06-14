@@ -9,7 +9,7 @@ notifications:
     on_failure: change
 
 install:
-  - export NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
+  - export NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest-v10.x/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
   - echo $NODE_VERSION
 #  - sudo curl -sSL https://get.docker.com/ | sh
   - docker version
