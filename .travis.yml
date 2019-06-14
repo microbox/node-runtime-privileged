@@ -1,19 +1,19 @@
 sudo: required
 
+services:
+  - docker
+
 notifications:
   email:
     on_success: never
     on_failure: change
 
-
-before_install:
-  - export LATEST_VERSION=$(wget -qO- https://nodejs.org/dist/latest-v8.x/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
-  - echo $LATEST_VERSION
-  - export NODE_VERSION=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo $LATEST_VERSION; else echo $TRAVIS_BRANCH ; fi`
-  - echo $NODE_VERSION
-
 install:
-  - sudo curl -sSL https://get.docker.com/ | sh
+  - export NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
+  - echo $NODE_VERSION
+#  - sudo curl -sSL https://get.docker.com/ | sh
+  - docker version
+  - docker info
 #  - sudo rm /usr/local/bin/docker-compose
 #  - export DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)
 #  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
@@ -23,13 +23,12 @@ install:
 #  - docker-compose version
 
 script:
-  - docker version
-  - docker info
-
-after_success:
-  - export REPO=$TRAVIS_REPO_SLUG
-  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-  - docker build -t $REPO:$TAG --build-arg NODE_VERSION=$NODE_VERSION .
-  - docker images
-  - echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-  - docker push $REPO
+  - export IMAGE=$TRAVIS_REPO_SLUG:$NODE_VERSION
+  - docker pull $IMAGE || echo 'image not found'
+  - |
+    if [[ "$(docker images -q $IMAGE 2> /dev/null)" == "" ]]; then
+      docker build -t $IMAGE -t $TRAVIS_REPO_SLUG:latest --build-arg NODE_VERSION=$NODE_VERSION .
+      docker images
+      echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+      docker push $TRAVIS_REPO_SLUG
+    fi
