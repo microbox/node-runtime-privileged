@@ -9,13 +9,19 @@ notifications:
     on_failure: change
 
 install:
-  - export NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest-v10.x/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
-  - echo $NODE_VERSION
-  - export IMAGE=$TRAVIS_REPO_SLUG:$NODE_VERSION
-  - echo $IMAGE
+  - |
+    export REPO=$TRAVIS_REPO_SLUG
+    export BRANCH=10
+    export NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest-v$BRANCH.x/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
+
+#install:
+#  - export NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest/ | sed -nE 's|.*>node-v(.*)\.pkg</a>.*|\1|p')
+#  - echo $NODE_VERSION
+#  - export IMAGE=$TRAVIS_REPO_SLUG:$NODE_VERSION
+#  - echo $IMAGE
 #  - sudo curl -sSL https://get.docker.com/ | sh
-  - docker version
-  - docker info
+#  - docker version
+#  - docker info
 #  - sudo rm /usr/local/bin/docker-compose
 #  - export DOCKER_COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep 'tag_name' | cut -d\" -f4)
 #  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
@@ -25,11 +31,16 @@ install:
 #  - docker-compose version
 
 script:
+  - docker version
+  - docker info
   - docker pull $IMAGE || echo 'image not found'
   - |
-    if [[ "$(docker images -q $IMAGE 2> /dev/null)" == "" ]]; then
-      docker build -t $IMAGE -t $TRAVIS_REPO_SLUG:10 --build-arg NODE_VERSION=$NODE_VERSION .
-      docker images
-      echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-      docker push $TRAVIS_REPO_SLUG
+    echo "Current version: $REPO:$NODE_VERSION"
+    docker pull $REPO:$NODE_VERSION || echo 'image not found'
+    if [[ "$(docker images -q $REPO:$NODE_VERSION 2> /dev/null)" == "" ]]; then
+      docker build -t $REPO:$NODE_VERSION --build-arg NODE_VERSION=$NODE_VERSION .
     fi
+    docker tag $REPO:$NODE_VERSION $REPO:$BRANCH
+    docker images
+    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+    docker push $REPO
